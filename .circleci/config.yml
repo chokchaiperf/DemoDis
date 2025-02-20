@@ -1,31 +1,80 @@
 # Use the latest 2.1 version of CircleCI pipeline process engine.
 # See: https://circleci.com/docs/configuration-reference
 version: 2.1
-
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/jobs-steps/#jobs-overview & https://circleci.com/docs/configuration-reference/#jobs
 jobs:
-  say-hello:
-    # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/executor-intro/ & https://circleci.com/docs/configuration-reference/#executor-job
-    docker:
-      # Specify the version you desire here
-      # See: https://circleci.com/developer/images/image/cimg/base
-      - image: cimg/base:current
-
-    # Add steps to the job
-    # See: https://circleci.com/docs/jobs-steps/#steps-overview & https://circleci.com/docs/configuration-reference/#steps
+  android_build:
+    macos:
+      xcode: "16.1.0"
     steps:
-      # Checkout the code as the first step.
       - checkout
       - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
+          name: install code siginig key for android
+          command: | 
+            ANDROID_CERTIFICATE_PATH=/Users/distiller/project/mana-key.jks
+            echo -n "${AndroidSigning_file}" | base64 --decode -o $ANDROID_CERTIFICATE_PATH
+            
+      - run:
+          name: manage SDK
+          command: |
+            curl -s "https://get.sdkman.io" | bash
+            source "$HOME/.sdkman/bin/sdkman-init.sh"
+            sdk install java 17.0.4.1-tem
+      
+      - run:
+          name: Download and Setup Android SDK
+          command: |
+            # Download Android SDK command-line tools
+            curl -o commandlinetools-mac.zip https://dl.google.com/android/repository/commandlinetools-mac-7583922_latest.zip
+            
+            # Create Android SDK directory
+            mkdir -p ~/Library/Android/Sdk/cmdline-tools
+            
+            # Extract the downloaded tools
+            unzip commandlinetools-mac.zip -d ~/Library/Android/Sdk/cmdline-tools
+            
+            # Move the extracted tools to the correct directory
+            mv ~/Library/Android/Sdk/cmdline-tools/cmdline-tools ~/Library/Android/Sdk/cmdline-tools/latest
+            
+            # Set environment variables
+            export ANDROID_HOME=~/Library/Android/Sdk
+            export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
+            
+            # Accept licenses
+            yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+            
+            # Update SDK tools
+            $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --update
 
-# Orchestrate jobs using workflows
-# See: https://circleci.com/docs/workflows/ & https://circleci.com/docs/configuration-reference/#workflows
+      - run: 
+          name: manage android sdk
+          command: |
+            ~/Library/Android/Sdk/cmdline-tools/latest/bin/sdkmanager  "tools" "platform-tools" "build-tools;34.0.0" "platforms;android-34"
+      - run:
+          name: Install .NET SDK
+          command: |
+            brew install --cask dotnet-sdk
+            sudo dotnet workload install maui
+      - run:
+          name: Build .NET MAUI Project
+          command: |
+            cd src
+            dotnet restore
+            dotnet publish -f net9.0-android -c Release /p:ArchiveOnBuild=true /p:EnableAssemblyILStripping=false 
+      - run:
+          name: signing android app
+          command: |
+            jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore /Users/distiller/project/mana-key.jks -storepass "${AndroidSigning_store_password}" -keypass "${AndroidSigning_Key_password}" /Users/distiller/project/Maui_Narumit/bin/Release/net8.0-android/publish/thes.maui.client.aab "${AndroidSigning_Key_Alias}"
+            jarsigner -verify -verbose -certs /Users/distiller/project/DemoDis/DemoDis/src/bin/Release/net9.0-android/publish/thes.demo.client-Signed.apk
+      - run:
+          name: verify signing app
+          command: |
+            jarsigner -verify -verbose -certs /Users/distiller/project/DemoDis/DemoDis/src/bin/Release/net9.0-android/publish/thes.demo.client-Signed.apk
+      - store_artifacts:
+          path: '/Users/distiller/project/DemoDis/DemoDis/src/bin/Release/net9.0-android/publish/thes.demo.client-Signed.apk'
+          destination: artifact-file
+
 workflows:
-  say-hello-workflow: # This is the name of the workflow, feel free to change it to better match your workflow.
-    # Inside the workflow, you define the jobs you want to run.
+  version: 2
+  build_and_test:
     jobs:
-      - say-hello
+      - android_build
