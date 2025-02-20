@@ -19,6 +19,10 @@ jobs:
             curl -s "https://get.sdkman.io" | bash
             source "$HOME/.sdkman/bin/sdkman-init.sh"
             sdk install java 17.0.4.1-tem
+
+      - run:
+          name: Install Firebase CLI
+          command: curl -sL https://firebase.tools | bash
       
       - run:
           name: Download and Setup Android SDK
@@ -60,6 +64,19 @@ jobs:
             cd src
             dotnet restore
             dotnet publish -f net9.0-android -c Release /p:ArchiveOnBuild=true /p:EnableAssemblyILStripping=false
+      
+      - run:
+          name: verify bundle
+          command: |
+            ls /Users/distiller/project/src/bin/Release/net9.0-android/publish/thes.demo.client-Signed.apk
+
+      - run:
+          name: Upload to Firebase
+          command: |
+            firebase appdistribution:distribute /Users/distiller/project/src/bin/Release/net9.0-android/publish/thes.demo.client-Signed.apk \
+              --app 1:353420540110:android:5afe84059ed0b5dba1789f \
+              --token 1//0g5o379S6DSXqCgYIARAAGBASNwF-L9IrU5SkAU8vJokJ2iN9ByHCy2JGF8CGACwgJSR9rSkw14MHEV66w-b1LhtjPlPC34voB2Q \
+              --groups ManualTester
 
 workflows:
   version: 2
