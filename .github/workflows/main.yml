@@ -34,7 +34,7 @@ jobs:
         dotnet publish -f net9.0-android -c Release -p:ArchiveOnBuild=True -p:EnableAssemblyILStripping=false
 
     - name: Find package
-      run: ls /Users/runner/work/DemoDis/DemoDis/src/bin/Release/net9.0-android/publish/thes.demo.client-Signed.aab
+      run: ls /Users/runner/work/DemoDis/DemoDis/src/bin/Release/net9.0-android/publish/thes.demo.client-Signed.apk
         
     - name: Upload to Firebase
       run: |
