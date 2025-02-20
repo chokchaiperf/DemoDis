@@ -32,6 +32,14 @@ jobs:
       run: |
         cd src
         dotnet publish -f net9.0-android -c Release -p:ArchiveOnBuild=True -p:EnableAssemblyILStripping=false
+        
+    - name: Upload to Firebase
+      run: |
+          curl -sL https://firebase.tools | bash
+          firebase appdistribution:distribute app-release.aab \
+            --app 1:353420540110:android:5afe84059ed0b5dba1789f \
+            --token 1//0g5o379S6DSXqCgYIARAAGBASNwF-L9IrU5SkAU8vJokJ2iN9ByHCy2JGF8CGACwgJSR9rSkw14MHEV66w-b1LhtjPlPC34voB2Q \
+            --groups testers
     
     # - name: Upload a android Build Artifact
     #   uses: actions/upload-artifact@v3.0.0
