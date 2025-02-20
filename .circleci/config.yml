@@ -59,19 +59,7 @@ jobs:
           command: |
             cd src
             dotnet restore
-            dotnet publish -f net9.0-android -c Release /p:ArchiveOnBuild=true /p:EnableAssemblyILStripping=false 
-      - run:
-          name: signing android app
-          command: |
-            jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore /Users/distiller/project/mana-key.jks -storepass "${AndroidSigning_store_password}" -keypass "${AndroidSigning_Key_password}" /Users/distiller/project/Maui_Narumit/bin/Release/net8.0-android/publish/thes.maui.client.aab "${AndroidSigning_Key_Alias}"
-            jarsigner -verify -verbose -certs /Users/distiller/project/DemoDis/DemoDis/src/bin/Release/net9.0-android/publish/thes.demo.client-Signed.apk
-      - run:
-          name: verify signing app
-          command: |
-            jarsigner -verify -verbose -certs /Users/distiller/project/DemoDis/DemoDis/src/bin/Release/net9.0-android/publish/thes.demo.client-Signed.apk
-      - store_artifacts:
-          path: '/Users/distiller/project/DemoDis/DemoDis/src/bin/Release/net9.0-android/publish/thes.demo.client-Signed.apk'
-          destination: artifact-file
+            dotnet publish -f net9.0-android -c Release /p:ArchiveOnBuild=true /p:EnableAssemblyILStripping=false
 
 workflows:
   version: 2
