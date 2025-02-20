@@ -1,0 +1,39 @@
+  # This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: .NET
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: macos-15
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Change ios version
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+        
+    - name: Install .NET MAUI
+      run: dotnet workload install maui
+      
+    - name: Restore dependencies
+      run: dotnet restore src/DemoDis.sln
+
+    - name: Build iOS Platform
+      run: |
+        cd src/Clients/ManaApp
+        dotnet publish -f net9.0-android -c Release -p:ArchiveOnBuild=True -p:EnableAssemblyILStripping=false
+    
+    # - name: Upload a android Build Artifact
+    #   uses: actions/upload-artifact@v3.0.0
+    #   with:
+    #     path: '**/*.aab'
