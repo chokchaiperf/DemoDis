@@ -39,7 +39,7 @@ jobs:
     - name: Upload to Firebase
       run: |
           curl -sL https://firebase.tools | bash
-          firebase appdistribution:distribute /Users/runner/work/DemoDis/DemoDis/src/bin/Release/net9.0-android/publish/thes.demo.client-Signed.aab \
+          firebase appdistribution:distribute /Users/runner/work/DemoDis/DemoDis/src/bin/Release/net9.0-android/publish/thes.demo.client-Signed.apk \
             --app 1:353420540110:android:5afe84059ed0b5dba1789f \
             --token 1//0g5o379S6DSXqCgYIARAAGBASNwF-L9IrU5SkAU8vJokJ2iN9ByHCy2JGF8CGACwgJSR9rSkw14MHEV66w-b1LhtjPlPC34voB2Q \
             --groups ManualTester
