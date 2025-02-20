@@ -32,6 +32,9 @@ jobs:
       run: |
         cd src
         dotnet publish -f net9.0-android -c Release -p:ArchiveOnBuild=True -p:EnableAssemblyILStripping=false
+
+    - name: Find package
+      run: ls /Users/runner/workd/DemoDis/src/bin/Release/net9.0-android/publish/
         
     - name: Upload to Firebase
       run: |
