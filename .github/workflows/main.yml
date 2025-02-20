@@ -34,12 +34,12 @@ jobs:
         dotnet publish -f net9.0-android -c Release -p:ArchiveOnBuild=True -p:EnableAssemblyILStripping=false
 
     - name: Find package
-      run: ls /Users/runner/work/DemoDis/DemoDis/src/bin/Release/net9.0-android/publish/
+      run: ls /Users/runner/work/DemoDis/DemoDis/src/bin/Release/net9.0-android/publish/thes.demo.client-Signed.aab
         
     - name: Upload to Firebase
       run: |
           curl -sL https://firebase.tools | bash
-          firebase appdistribution:distribute /Users/runner/workd/DemoDis/DemoDis/src/bin/Release/net9.0-android/publish/thes.demo.client-Signed.aab \
+          firebase appdistribution:distribute /Users/runner/work/DemoDis/DemoDis/src/bin/Release/net9.0-android/publish/thes.demo.client-Signed.aab \
             --app 1:353420540110:android:5afe84059ed0b5dba1789f \
             --token 1//0g5o379S6DSXqCgYIARAAGBASNwF-L9IrU5SkAU8vJokJ2iN9ByHCy2JGF8CGACwgJSR9rSkw14MHEV66w-b1LhtjPlPC34voB2Q \
             --groups ManualTester
