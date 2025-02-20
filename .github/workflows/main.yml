@@ -30,7 +30,7 @@ jobs:
 
     - name: Build iOS Platform
       run: |
-        cd src/Clients/ManaApp
+        cd src
         dotnet publish -f net9.0-android -c Release -p:ArchiveOnBuild=True -p:EnableAssemblyILStripping=false
     
     # - name: Upload a android Build Artifact
